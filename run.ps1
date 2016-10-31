@@ -1,0 +1,1 @@
+docker run -it --rm -p 5006:80 doc-stack-app-api:optimized
