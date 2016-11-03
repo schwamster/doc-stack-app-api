@@ -28,7 +28,7 @@ namespace docstackapp.Controllers
         [HttpGet]
         public async Task<string> Get(ICollection<IFormFile> file)
         {
-            return "upload a file to this endpoint";
+            return "upload a file to this endpoint!";
         }
 
         [HttpPost]

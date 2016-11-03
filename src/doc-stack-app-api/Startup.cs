@@ -27,6 +27,7 @@ namespace doc_stack_app_api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
             // Add framework services.
             services.AddMvc();
         }
@@ -36,6 +37,13 @@ namespace doc_stack_app_api
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
+
+            app.UseCors(builder => builder
+                .WithOrigins("http://localhost:4200", "http://doc-stack-app:4200")
+                .WithMethods("GET", "POST", "HEAD")
+                .AllowAnyHeader()
+                .AllowCredentials()
+                );
 
             app.UseMvc();
         }
