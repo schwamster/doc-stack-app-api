@@ -37,6 +37,7 @@ namespace docstackapp.Controllers
         [HttpPost]
         public async Task<bool> Index(ICollection<IFormFile> file)
         {
+            this.logger.LogInformation("Document uploaded");
             var allowedContentTypes = new List<string>() { "image/png", "image/jpg", "image/jpeg", "image/gif", "application/pdf" };
             var result = false;
             var uploads = Path.Combine(environment.WebRootPath, "uploads");
@@ -54,6 +55,7 @@ namespace docstackapp.Controllers
                     var bytes = ConvertToBytes(f);
                     var stringRepresentationOfFile = System.Convert.ToBase64String(bytes);
                     var payload = $"{{\"name\":\"{f.FileName}\", \"size\":{f.Length}, \"user\":\"{user}\", \"client\":\"{client}\", \"content\":\"{stringRepresentationOfFile}\"}}";
+                    this.logger.LogInformation("Adding document to queue");
                     AddToQueue("documents:inprocess:0", payload);
                     result = true;
                 }

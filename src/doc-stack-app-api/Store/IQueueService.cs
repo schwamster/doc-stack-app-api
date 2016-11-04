@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
@@ -18,23 +19,26 @@ namespace doc_stack_app_api.Store
     public class RedisQueueService : IQueueService
     {
         internal ConnectionMultiplexer connection;
-        private string hostName;
         private readonly ILogger logger;
+        private readonly IConfiguration configuration;
 
-        public RedisQueueService(ILoggerFactory loggerFactory, string hostName)
+        public RedisQueueService(ILogger<RedisQueueService> logger, IConfiguration config)
         {
-            this.logger = loggerFactory.CreateLogger<RedisQueueService>();
-            this.hostName = hostName;
+            this.logger = logger;
+            this.configuration = config;
+            this.Initialize();
         }
 
         public void Initialize()
         {
-            this.connection = CreateConnectionMultiplexer(this.hostName);
+
+            this.connection = CreateConnectionMultiplexer(configuration["RedisHostName"]);
         }
 
         internal ConnectionMultiplexer CreateConnectionMultiplexer(string hostName)
         {
             // Use IP address to workaround https://github.com/StackExchange/StackExchange.Redis/issues/410
+            this.logger.LogInformation("Trying to find redis...");
             var ipAddress = GetIp(hostName);
             this.logger.LogInformation($"Found redis at {ipAddress}");
 
@@ -63,8 +67,17 @@ namespace doc_stack_app_api.Store
 
         public void AddItem(string key, string value)
         {
-            var db = this.connection.GetDatabase();
-            db.ListLeftPush(key, value);
+            try
+            {
+                var db = this.connection.GetDatabase();
+                db.ListLeftPush(key, value);
+                this.logger.LogInformation("Item added to queue");
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogInformation("Item could not be added to queue => {0}", ex);
+            }
+
         }
     }
 }

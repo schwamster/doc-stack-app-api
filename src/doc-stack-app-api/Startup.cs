@@ -34,11 +34,9 @@ namespace doc_stack_app_api
             services.AddCors();
             // Add framework services.
             services.AddMvc();
-
+            services.AddLogging();
             services.AddSingleton<IConfiguration>(Configuration);
-            var queue = new RedisQueueService(Startup.LoggerFactory, "localhost");
-            queue.Initialize();
-            services.AddSingleton<IQueueService>(queue);
+            services.AddSingleton<IQueueService, RedisQueueService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
