@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using System.IO;
+using doc_stack_app_api.Store;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -15,14 +16,16 @@ namespace docstackapp.Controllers
     public class UploadController : Controller
     {
         private readonly IConfiguration config;
-        private IHostingEnvironment environment;
+        private readonly IHostingEnvironment environment;
         private readonly ILogger<UploadController> logger;
+        private readonly IQueueService queue;
 
-        public UploadController(IHostingEnvironment environment, ILogger<UploadController> logger)
+        public UploadController(IHostingEnvironment environment, ILogger<UploadController> logger, IConfiguration config, IQueueService queue)
         {
             this.config = config;
             this.environment = environment;
             this.logger = logger;
+            this.queue = queue;
         }
 
         [HttpGet]
@@ -46,17 +49,33 @@ namespace docstackapp.Controllers
 
                 if (f.Length > 0)
                 {
-                    using (var fileStream = new FileStream(Path.Combine(uploads, f.FileName), FileMode.Create))
-                    {
-                        await f.CopyToAsync(fileStream);
-                    }
+                    var user = "dummyUser";
+                    var client = "dummyClient";
+                    var bytes = ConvertToBytes(f);
+                    var stringRepresentationOfFile = System.Convert.ToBase64String(bytes);
+                    var payload = $"{{\"name\":\"{f.FileName}\", \"size\":{f.Length}, \"user\":\"{user}\", \"client\":\"{client}\", \"content\":\"{stringRepresentationOfFile}\"}}";
+                    AddToQueue("documents:inprocess:0", payload);
                     result = true;
                 }
             }
             return result;
         }
 
-        
+        internal byte[] ConvertToBytes(IFormFile image)
+        {
+            byte[] bytes = null;
+            BinaryReader reader = new BinaryReader(image.OpenReadStream());
+            bytes = reader.ReadBytes((int)image.Length);
+            return bytes;
+        }
 
+
+        internal void AddToQueue(string key, string value)
+        {
+            queue.AddItem(key, value);
+        }
+
+        
+        
     }
 }

@@ -7,13 +7,15 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using doc_stack_app_api.Store;
 
 namespace doc_stack_app_api
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        public Startup(IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            LoggerFactory = loggerFactory;
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -21,6 +23,8 @@ namespace doc_stack_app_api
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
         }
+
+        public static ILoggerFactory LoggerFactory { get; set; }
 
         public IConfigurationRoot Configuration { get; }
 
@@ -30,6 +34,11 @@ namespace doc_stack_app_api
             services.AddCors();
             // Add framework services.
             services.AddMvc();
+
+            services.AddSingleton<IConfiguration>(Configuration);
+            var queue = new RedisQueueService(Startup.LoggerFactory, "localhost");
+            queue.Initialize();
+            services.AddSingleton<IQueueService>(queue);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
