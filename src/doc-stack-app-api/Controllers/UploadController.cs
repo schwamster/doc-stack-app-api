@@ -48,15 +48,24 @@ namespace docstackapp.Controllers
                     return false;
                 }
 
+                
+
                 if (f.Length > 0)
                 {
+                    var documentId = System.Guid.NewGuid();
                     var user = "dummyUser";
                     var client = "dummyClient";
                     var bytes = ConvertToBytes(f);
                     var stringRepresentationOfFile = System.Convert.ToBase64String(bytes);
-                    var payload = $"{{\"name\":\"{f.FileName}\", \"size\":{f.Length}, \"user\":\"{user}\", \"client\":\"{client}\", \"content\":\"{stringRepresentationOfFile}\"}}";
+                    
                     this.logger.LogInformation("Adding document to queue");
-                    AddToQueue("documents:inprocess:0", payload);
+                    
+                    //adding doc to store
+                    AddToStore(user, client, documentId, f);
+
+                    //adding doc to queue for further processing
+                    var payload = $"{{\"id\":\"{documentId}\",\"name\":\"{f.FileName}\", \"size\":{f.Length}, \"user\":\"{user}\", \"client\":\"{client}\", \"content\":\"{stringRepresentationOfFile}\"}}";
+                    AddToQueue("documents:process:0", payload);
                     result = true;
                 }
             }
