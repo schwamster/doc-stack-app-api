@@ -95,7 +95,7 @@ namespace docstackapp.Controllers
                     }
 
                     content.Add(new StreamContent(new MemoryStream(document)), "file", f.FileName);
-                    using (var message = await client.PostAsync($"{uploadHost}/api/Document", content))
+                    using (var message = await client.PostAsync($"http://{uploadHost}/api/Document", content))
                     {
                         var input = await message.Content.ReadAsStringAsync();
                         this.logger.LogInformation($"Document uploades -> {input}");
