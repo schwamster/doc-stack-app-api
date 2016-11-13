@@ -60,12 +60,13 @@ namespace docstackapp.Controllers
                     var bytes = ConvertToBytes(f);
                     var stringRepresentationOfFile = System.Convert.ToBase64String(bytes);
 
-                    this.logger.LogInformation("Adding document to queue");
+                    this.logger.LogInformation("Adding document to store...");
 
                     //adding doc to store
                     await AddToStore(user, client, documentId, f, this.config["StoreHostName"]);
 
                     //adding doc to queue for further processing
+                    this.logger.LogInformation("Adding document to queue...");
                     var payload = $"{{\"id\":\"{documentId}\",\"name\":\"{f.FileName}\", \"size\":{f.Length}, \"user\":\"{user}\", \"client\":\"{client}\", \"content\":\"{stringRepresentationOfFile}\"}}";
                     AddToQueue("documents:process:0", payload);
                     result = true;
@@ -74,7 +75,7 @@ namespace docstackapp.Controllers
             return result;
         }
 
-        public static async Task<bool> AddToStore(string user, string clientName, Guid documentId, IFormFile f, string uploadHost)
+        public async Task<bool> AddToStore(string user, string clientName, Guid documentId, IFormFile f, string uploadHost)
         {
             byte[] document = ConvertToBytes(f);
             using (var client = new HttpClient())
@@ -97,6 +98,7 @@ namespace docstackapp.Controllers
                     using (var message = await client.PostAsync($"{uploadHost}/api/Document", content))
                     {
                         var input = await message.Content.ReadAsStringAsync();
+                        this.logger.LogInformation($"Document uploades -> {input}");
                         return true;
                     }
                 }
