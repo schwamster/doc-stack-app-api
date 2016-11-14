@@ -68,7 +68,7 @@ namespace docstackapp.Controllers
                     //adding doc to queue for further processing
                     this.logger.LogInformation("Adding document to queue...");
                     var payload = $"{{\"id\":\"{documentId}\",\"name\":\"{f.FileName}\", \"size\":{f.Length}, \"user\":\"{user}\", \"client\":\"{client}\", \"content\":\"{stringRepresentationOfFile}\"}}";
-                    AddToQueue("documents:process:0", payload);
+                    AddToQueue(this.config["TextExtractQueue"], payload);
                     result = true;
                 }
             }

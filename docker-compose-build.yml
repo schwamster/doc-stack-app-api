@@ -1,6 +1,6 @@
 version: '2'
 services:
-  tradapp-build:
+  app-build:
     image: microsoft/aspnetcore-build:1.0.1
     volumes:
       - .:/sln
