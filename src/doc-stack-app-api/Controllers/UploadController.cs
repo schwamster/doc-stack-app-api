@@ -11,6 +11,8 @@ using System;
 using System.Net.Http;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
+using System.Text;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -48,7 +50,7 @@ namespace docstackapp.Controllers
             foreach (var f in file)
             {
                 if (!allowedContentTypes.Contains(f.ContentType))
-                {   
+                {
                     return false;
                 }
 
@@ -63,7 +65,7 @@ namespace docstackapp.Controllers
                     this.logger.LogInformation("Adding document to store...");
 
                     //adding doc to store
-                    await AddToStore(user, client, documentId, f, this.config["StoreHostName"]);
+                    await AddToStore(user, client, documentId, stringRepresentationOfFile, f.FileName, this.config["StoreHostName"]);
 
                     //adding doc to queue for further processing
                     this.logger.LogInformation("Adding document to queue...");
@@ -75,32 +77,25 @@ namespace docstackapp.Controllers
             return result;
         }
 
-        public async Task<bool> AddToStore(string user, string clientName, Guid documentId, IFormFile f, string uploadHost)
+        public async Task<bool> AddToStore(string user, string clientName, Guid documentId, string stringRepresentationOfFile, string fileName, string uploadHost)
         {
-            byte[] document = ConvertToBytes(f);
+            var document = new
+            {
+                id = documentId,
+                user = user,
+                client = clientName,
+                name = fileName,
+                content = stringRepresentationOfFile
+            };
+
+            var content = new StringContent(JsonConvert.SerializeObject(document), Encoding.UTF8, "application/json");
             using (var client = new HttpClient())
             {
-                using (var content = new MultipartFormDataContent("Upload----" + DateTime.Now.ToString(CultureInfo.InvariantCulture)))
+                using (var message = await client.PostAsync($"http://{uploadHost}/api/Document", content))
                 {
-                    var values = new[]
-                    {
-                        new KeyValuePair<string, string>("user", user),
-                        new KeyValuePair<string, string>("client", clientName),
-                        new KeyValuePair<string, string>("id", documentId.ToString())
-                    };
-
-                    foreach (var keyValuePair in values)
-                    {
-                        content.Add(new StringContent(keyValuePair.Value), keyValuePair.Key);
-                    }
-
-                    content.Add(new StreamContent(new MemoryStream(document)), "file", f.FileName);
-                    using (var message = await client.PostAsync($"http://{uploadHost}/api/Document", content))
-                    {
-                        var input = await message.Content.ReadAsStringAsync();
-                        this.logger.LogInformation($"Document uploades -> {input}");
-                        return true;
-                    }
+                    var input = await message.Content.ReadAsStringAsync();
+                    this.logger.LogInformation($"Document uploades -> {input}");
+                    return true;
                 }
             }
         }
