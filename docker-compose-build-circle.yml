@@ -1,0 +1,6 @@
+app-build:
+  image: microsoft/aspnetcore-build:1.0.1
+  volumes:
+    - .:/sln
+  working_dir: /sln
+  entrypoint: ["sh", "./build.sh"]
