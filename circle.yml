@@ -1,0 +1,17 @@
+machine:  
+  services:
+    - docker
+
+dependencies:
+  override:
+    - echo "$CIRCLE_TAG"
+    - docker info
+    - ./build-in-container.sh
+    - docker build ./publish/web -t schwamster/doc-stack-app-api
+    
+deployment:
+  hub:
+    branch: master
+    commands:
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - docker push schwamster/doc-stack-app-api    
