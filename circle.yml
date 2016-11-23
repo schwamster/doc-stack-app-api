@@ -7,7 +7,7 @@ dependencies:
     - echo "$CIRCLE_TAG"
     - docker info
     - docker-compose -f docker-compose-build-circle.yml up
-    - docker build ./publish/web -t schwamster/doc-stack-app-api
+    - docker build -t schwamster/doc-stack-app-api ./publish/web/
     
 deployment:
   hub:
