@@ -8,8 +8,8 @@ dependencies:
     - docker info
     - docker-compose -f docker-compose-build-circle.yml up
     - docker build -t schwamster/doc-stack-app-api ./publish/web/
- 
- test:
+
+test:
   override:
     - mkdir -p $CIRCLE_TEST_REPORTS/xml
     - mv testresults/ $CIRCLE_TEST_REPORTS/xml/
