@@ -8,6 +8,7 @@ dependencies:
     - docker info
     - docker-compose -f docker-compose-build-circle.yml up
     - docker build -t schwamster/doc-stack-app-api ./publish/web/
+    - mv testresults/ $CIRCLE_TEST_REPORTS/xml/
     
 deployment:
   hub:
