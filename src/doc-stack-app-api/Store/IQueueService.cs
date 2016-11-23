@@ -57,7 +57,7 @@ namespace doc_stack_app_api.Store
             }
         }
 
-        private static string GetIp(string hostname)
+        public static string GetIp(string hostname)
             => Dns.GetHostEntryAsync(hostname)
                 .Result
                 .AddressList
