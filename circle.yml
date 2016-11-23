@@ -11,8 +11,8 @@ dependencies:
 
 test:
   override:
-    - mkdir -p $CIRCLE_TEST_REPORTS/xml
-    - mv testresults/ $CIRCLE_TEST_REPORTS/xml/
+    - mkdir -p $CIRCLE_TEST_REPORTS
+    - mv testresults/ $CIRCLE_TEST_REPORTS/
     
 deployment:
   hub:
