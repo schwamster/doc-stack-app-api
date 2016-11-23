@@ -3,4 +3,4 @@ app-build:
   volumes:
     - .:/sln
   working_dir: /sln
-  entrypoint: ["sh", "./build.sh"]
+  entrypoint: ["sh", "./build-container.sh"]
