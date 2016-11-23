@@ -6,3 +6,5 @@
 /.vs/doc-stack-app-api/v14/.suo
 /test/doc-stack-app-api.tests/bin
 /test/doc-stack-app-api.tests/obj
+/test/doc-stack-app-api.tests/doc-stack-app-api.tests.xproj
+/test/doc-stack-app-api.tests/doc-stack-app-api.tests.xproj.user
