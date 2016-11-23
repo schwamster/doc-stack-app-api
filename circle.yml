@@ -6,7 +6,7 @@ dependencies:
   override:
     - echo "$CIRCLE_TAG"
     - docker info
-    - ./build-in-container.sh
+    - ./build.sh
     - docker build ./publish/web -t schwamster/doc-stack-app-api
     
 deployment:
