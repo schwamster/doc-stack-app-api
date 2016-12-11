@@ -80,6 +80,15 @@ namespace doc_stack_app_api
                 .AllowCredentials()
                 );
 
+            app.UseIdentityServerAuthentication(new IdentityServerAuthenticationOptions
+            {
+                Authority = "http://localhost:5000",
+                AllowedScopes = { "doc-stack-app-api" },
+
+                RequireHttpsMetadata = false
+            });
+
+
             app.UseMvc();
 
             // Enable middleware to serve generated Swagger as a JSON endpoint
