@@ -1,4 +1,4 @@
-﻿{
+{
   "dependencies": {
     "Microsoft.NETCore.App": {
       "version": "1.1.0",
@@ -18,9 +18,8 @@
     "Microsoft.Extensions.Options.ConfigurationExtensions": "1.0.0",
     "StackExchange.Redis": "1.1.608",
     "Newtonsoft.Json": "9.0.1",
-    "Swashbuckle.SwaggerGen": "6.0.0-beta902",
-    "Swashbuckle.SwaggerUi": "6.0.0-beta902",
-    "IdentityServer4.AccessTokenValidation": "1.0.1-rc4-update1"
+    "IdentityServer4.AccessTokenValidation": "1.0.1-rc4-update1",
+    "Swashbuckle.AspNetCore": "1.0.0-rc1"
   },
 
   "tools": {
@@ -28,7 +27,7 @@
   },
 
   "frameworks": {
-    "netcoreapp1.0": {
+    "netcoreapp1.1": {
       "imports": [
         "dotnet5.6",
         "portable-net45+win8"

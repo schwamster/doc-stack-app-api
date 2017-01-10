@@ -8,3 +8,5 @@
 /test/doc-stack-app-api.tests/obj
 /test/doc-stack-app-api.tests/doc-stack-app-api.tests.xproj
 /test/doc-stack-app-api.tests/doc-stack-app-api.tests.xproj.user
+/src/doc-stack-app-api/bin/Debug/netcoreapp1.1
+/src/doc-stack-app-api/obj/Debug/netcoreapp1.1
