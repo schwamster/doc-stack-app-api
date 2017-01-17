@@ -12,14 +12,17 @@ namespace doc_stack_app_api
     {
         public static void Main(string[] args)
         {
+            Console.Title = "dock-stack-app-api";
+
             var host = new WebHostBuilder()
                 .UseKestrel()
+                .UseUrls("http://localhost:5001")
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseIISIntegration()
                 .UseStartup<Startup>()
                 .Build();
 
-            host.Run();
+            host.Run();        
         }
     }
 }

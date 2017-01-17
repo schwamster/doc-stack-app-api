@@ -13,12 +13,14 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace docstackapp.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     public class UploadController : Controller
     {
         private readonly IConfiguration config;
@@ -35,13 +37,13 @@ namespace docstackapp.Controllers
         }
 
         [HttpGet]
-        public async Task<string> Get(ICollection<IFormFile> file)
+        public async Task<string> Get()
         {
             return "upload a file to this endpoint!";
         }
 
         [HttpPost]
-        public async Task<bool> Index(ICollection<IFormFile> file)
+        public async Task<bool> Index([FromBody]ICollection<IFormFile> file)
         {
             this.logger.LogInformation("Document uploaded");
             var allowedContentTypes = new List<string>() { "image/png", "image/jpg", "image/jpeg", "image/gif", "application/pdf" };
@@ -77,7 +79,7 @@ namespace docstackapp.Controllers
             return result;
         }
 
-        public async Task<bool> AddToStore(string user, string clientName, Guid documentId, string stringRepresentationOfFile, string fileName, string uploadHost)
+        internal async Task<bool> AddToStore(string user, string clientName, Guid documentId, string stringRepresentationOfFile, string fileName, string uploadHost)
         {
             var document = new
             {

@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using doc_stack_app_api.Store;
 using Microsoft.Extensions.PlatformAbstractions;
-using Swashbuckle.Swagger.Model;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace doc_stack_app_api
 {
@@ -33,25 +33,51 @@ namespace doc_stack_app_api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors();
+            var dockStackAppUrl = Configuration["DocStackApp"];
+            var identityServer = Configuration["IdentityServer"];
+
+            services.AddCors(options =>
+            {
+                // this defines a CORS policy called "default"
+                options.AddPolicy("default", policy =>
+                {
+                    policy.WithOrigins(dockStackAppUrl)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
+            });
+
             // Add framework services.
             services.AddMvc();
             services.AddLogging();
             services.AddSingleton<IConfiguration>(Configuration);
             services.AddSingleton<IQueueService, RedisQueueService>();
 
-            services.AddSwaggerGen();
-
-            services.ConfigureSwaggerGen(options =>
+            services.AddSwaggerGen(options =>
             {
-                options.SingleApiVersion(new Info
+                options.SwaggerDoc("v1", new Info
                 {
                     Version = "v1",
-                    Title = "doc-stack-app-api API",
+                    Title = "doc-stack-app-api",
                     Description = "manage the document store",
                     TermsOfService = "None",
                     Contact = new Contact { Name = "Bastian Töpfer", Email = "bastian.toepfer@gmail.com", Url = "http://github.com/schwamster/docStack" }
                 });
+
+                options.AddSecurityDefinition("oauth2", new OAuth2Scheme
+                {
+                    Type = "oauth2",
+                    Flow = "implicit",
+                    AuthorizationUrl = $"{identityServer}connect/authorize",
+                    Scopes = new Dictionary<string, string>
+                    {
+                        { "doc-stack-app-api", "doc-stack-app-api" }
+                    }
+                });
+
+                // Assign scope requirements to operations based on AuthorizeAttribute
+                options.OperationFilter<SecurityRequirementsOperationFilter>();
 
                 //Determine base path for the application.
                 var basePath = PlatformServices.Default.Application.ApplicationBasePath;
@@ -73,12 +99,18 @@ namespace doc_stack_app_api
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            app.UseCors(builder => builder
-                .WithOrigins("http://localhost:4200", "http://doc-stack-app:4200")
-                .WithMethods("GET", "POST", "HEAD")
-                .AllowAnyHeader()
-                .AllowCredentials()
-                );
+            var identityServer = Configuration["IdentityServer"];
+
+            app.UseCors("default");
+
+            app.UseIdentityServerAuthentication(new IdentityServerAuthenticationOptions
+            {
+                Authority = identityServer,
+                ApiName = "doc-stack-app-api",
+
+                RequireHttpsMetadata = false
+            });
+
 
             app.UseMvc();
 
@@ -86,7 +118,12 @@ namespace doc_stack_app_api
             app.UseSwagger();
 
             // Enable middleware to serve swagger-ui assets (HTML, JS, CSS etc.)
-            app.UseSwaggerUi();
+            app.UseSwaggerUi(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "doc-stack-app-api");
+
+                c.ConfigureOAuth2("doc-stack-app-api-swagger", null, "swagger-ui-realm", "Swagger UI");
+            });
         }
     }
 }
