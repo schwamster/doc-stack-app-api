@@ -13,3 +13,6 @@
 /.vs/restore.dg
 /src/doc-stack-app-api/project.lock.json
 /test/doc-stack-app-api.tests/project.lock.json
+/src/doc-stack-app-api/bin/release/netcoreapp1.1
+/src/doc-stack-app-api/obj/release/netcoreapp1.1
+/testresults/out.xml
