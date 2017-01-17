@@ -6,7 +6,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceRoot}\\src\\doc-stack-app-api\\bin\\Debug\\netcoreapp1.0\\doc-stack-app-api.dll",
+            "program": "${workspaceRoot}\\src\\doc-stack-app-api\\bin\\Debug\\netcoreapp1.1\\doc-stack-app-api.dll",
             "args": [],
             "cwd": "${workspaceRoot}",
             "stopAtEntry": false,

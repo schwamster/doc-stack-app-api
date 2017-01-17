@@ -34,7 +34,7 @@ namespace doc_stack_app_api
         public void ConfigureServices(IServiceCollection services)
         {
             var dockStackAppUrl = Configuration["DocStackApp"];
-            var identityServer = Configuration["IdentityServer"];
+            var identityServer = Configuration["IdentityServerAuthorizeUrl"];
 
             services.AddCors(options =>
             {
@@ -69,7 +69,7 @@ namespace doc_stack_app_api
                 {
                     Type = "oauth2",
                     Flow = "implicit",
-                    AuthorizationUrl = $"{identityServer}connect/authorize",
+                    AuthorizationUrl = $"{identityServer}",
                     Scopes = new Dictionary<string, string>
                     {
                         { "doc-stack-app-api", "doc-stack-app-api" }
@@ -99,13 +99,13 @@ namespace doc_stack_app_api
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            var identityServer = Configuration["IdentityServer"];
+            var identityServer = Configuration["IdentityServerHostName"];
 
             app.UseCors("default");
 
             app.UseIdentityServerAuthentication(new IdentityServerAuthenticationOptions
             {
-                Authority = identityServer,
+                Authority = $"http://{identityServer}",
                 ApiName = "doc-stack-app-api",
 
                 RequireHttpsMetadata = false
