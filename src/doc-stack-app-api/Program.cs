@@ -20,7 +20,6 @@ namespace doc_stack_app_api
                 .UseIISIntegration()
                 .UseStartup<Startup>()
                 .Build();
-
             host.Run();        
         }
     }
