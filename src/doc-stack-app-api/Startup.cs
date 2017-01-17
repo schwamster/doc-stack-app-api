@@ -33,7 +33,21 @@ namespace doc_stack_app_api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors();
+            var dockStackAppUrl = Configuration["DocStackApp"];
+            var identityServer = Configuration["IdentityServer"];
+
+            services.AddCors(options =>
+            {
+                // this defines a CORS policy called "default"
+                options.AddPolicy("default", policy =>
+                {
+                    policy.WithOrigins(dockStackAppUrl)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
+            });
+
             // Add framework services.
             services.AddMvc();
             services.AddLogging();
@@ -55,7 +69,7 @@ namespace doc_stack_app_api
                 {
                     Type = "oauth2",
                     Flow = "implicit",
-                    AuthorizationUrl = "http://localhost:3004/connect/authorize",
+                    AuthorizationUrl = $"{identityServer}connect/authorize",
                     Scopes = new Dictionary<string, string>
                     {
                         { "doc-stack-app-api", "doc-stack-app-api" }
@@ -64,14 +78,13 @@ namespace doc_stack_app_api
 
                 // Assign scope requirements to operations based on AuthorizeAttribute
                 options.OperationFilter<SecurityRequirementsOperationFilter>();
-                
+
                 //Determine base path for the application.
                 var basePath = PlatformServices.Default.Application.ApplicationBasePath;
 
                 //Set the comments path for the swagger json and ui.
                 options.IncludeXmlComments(GetXmlCommentsPath());
             });
-
         }
 
         private string GetXmlCommentsPath()
@@ -86,17 +99,14 @@ namespace doc_stack_app_api
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            app.UseCors(builder => builder
-                .WithOrigins("http://localhost:4200", "http://doc-stack-app:4200")
-                .WithMethods("GET", "POST", "HEAD")
-                .AllowAnyHeader()
-                .AllowCredentials()
-                );
+            var identityServer = Configuration["IdentityServer"];
+
+            app.UseCors("default");
 
             app.UseIdentityServerAuthentication(new IdentityServerAuthenticationOptions
             {
-                Authority = "http://localhost:5000",
-                AllowedScopes = { "doc-stack-app-api" },
+                Authority = identityServer,
+                ApiName = "doc-stack-app-api",
 
                 RequireHttpsMetadata = false
             });
@@ -108,7 +118,12 @@ namespace doc_stack_app_api
             app.UseSwagger();
 
             // Enable middleware to serve swagger-ui assets (HTML, JS, CSS etc.)
-            //app.UseSwaggerUi(c =>  c.ConfigureOAuth2("doc-stack-app-api-swagger-ui", "swagger-ui-secret", "swagger-ui-realm", "Swagger UI"));
+            app.UseSwaggerUi(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "doc-stack-app-api");
+
+                c.ConfigureOAuth2("doc-stack-app-api-swagger", null, "swagger-ui-realm", "Swagger UI");
+            });
         }
     }
 }

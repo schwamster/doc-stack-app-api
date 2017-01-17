@@ -10,3 +10,6 @@
 /test/doc-stack-app-api.tests/doc-stack-app-api.tests.xproj.user
 /src/doc-stack-app-api/bin/Debug/netcoreapp1.1
 /src/doc-stack-app-api/obj/Debug/netcoreapp1.1
+/.vs/restore.dg
+/src/doc-stack-app-api/project.lock.json
+/test/doc-stack-app-api.tests/project.lock.json
