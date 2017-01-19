@@ -99,13 +99,13 @@ namespace doc_stack_app_api
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            var identityServer = Configuration["IdentityServerHostName"];
+            var identityServer = Configuration["IdentityServerUrl"];
 
             app.UseCors("default");
 
             app.UseIdentityServerAuthentication(new IdentityServerAuthenticationOptions
             {
-                Authority = $"http://{identityServer}",
+                Authority = $"{identityServer}",
                 ApiName = "doc-stack-app-api",
 
                 RequireHttpsMetadata = false
