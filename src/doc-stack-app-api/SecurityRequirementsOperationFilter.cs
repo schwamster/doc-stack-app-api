@@ -18,7 +18,8 @@ public class SecurityRequirementsOperationFilter : IOperationFilter
             .OfType<AuthorizeAttribute>()
             .Select(attr => attr.Policy);
 
-        var requiredScopes = controllerScopes.Union(actionScopes).Distinct();
+        var requiredScopes = controllerScopes.Union(actionScopes).Distinct().ToList();
+        requiredScopes.Add("doc-stack-app-api");
 
         if (requiredScopes.Any())
         {
