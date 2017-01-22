@@ -43,7 +43,7 @@ namespace docstackapp.Controllers
         }
 
         [HttpPost]
-        public async Task<bool> Index([FromBody]ICollection<IFormFile> file)
+        public async Task<bool> Index([FromForm]ICollection<IFormFile> file)
         {
             this.logger.LogInformation("Document uploaded");
             var allowedContentTypes = new List<string>() { "image/png", "image/jpg", "image/jpeg", "image/gif", "application/pdf" };
