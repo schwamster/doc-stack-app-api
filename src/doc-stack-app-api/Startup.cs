@@ -34,7 +34,7 @@ namespace doc_stack_app_api
         public void ConfigureServices(IServiceCollection services)
         {
             var dockStackAppUrl = Configuration["DocStackApp"];
-            var identityServer = Configuration["IdentityServerSwaggerUrl"];
+            var identityServer = Configuration["AlternativeIdentityServer"];
 
             services.AddCors(options =>
             {
@@ -101,6 +101,7 @@ namespace doc_stack_app_api
             loggerFactory.AddDebug();
 
             var identityServer = Configuration["IdentityServerUrl"];
+            var alternativeIdentityServer = Configuration["AlternativeIdentityServer"];
 
             app.UseCors("default");
 
@@ -112,7 +113,7 @@ namespace doc_stack_app_api
                 RequireHttpsMetadata = false,
             };
             var options2 = IdentityServer4.AccessTokenValidation.CombinedAuthenticationOptions.FromIdentityServerAuthenticationOptions(options);
-            options2.JwtBearerOptions.TokenValidationParameters.ValidIssuers = new List<string>() {identityServer, "http://doc-identity"};
+            options2.JwtBearerOptions.TokenValidationParameters.ValidIssuers = new List<string>() {identityServer, alternativeIdentityServer};
 
             app.UseIdentityServerAuthentication(options2);
 
