@@ -34,7 +34,7 @@ namespace doc_stack_app_api
         public void ConfigureServices(IServiceCollection services)
         {
             var dockStackAppUrl = Configuration["DocStackApp"];
-            var identityServer = Configuration["IdentityServerAuthorizeUrl"];
+            var identityServer = Configuration["IdentityServerSwaggerUrl"];
 
             services.AddCors(options =>
             {
@@ -53,7 +53,7 @@ namespace doc_stack_app_api
             services.AddLogging();
             services.AddSingleton<IConfiguration>(Configuration);
             services.AddSingleton<IQueueService, RedisQueueService>();
-
+            
             services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new Info
@@ -69,7 +69,7 @@ namespace doc_stack_app_api
                 {
                     Type = "oauth2",
                     Flow = "implicit",
-                    AuthorizationUrl = $"{identityServer}",
+                    AuthorizationUrl = $"{identityServer}/connect/authorize",
                     Scopes = new Dictionary<string, string>
                     {
                         { "doc-stack-app-api", "doc-stack-app-api" }
@@ -85,6 +85,7 @@ namespace doc_stack_app_api
                 //Set the comments path for the swagger json and ui.
                 options.IncludeXmlComments(GetXmlCommentsPath());
             });
+            
         }
 
         private string GetXmlCommentsPath()
@@ -103,13 +104,17 @@ namespace doc_stack_app_api
 
             app.UseCors("default");
 
-            app.UseIdentityServerAuthentication(new IdentityServerAuthenticationOptions
+            var x = new Microsoft.IdentityModel.Tokens.TokenValidationParameters();
+            var options = new IdentityServerAuthenticationOptions
             {
                 Authority = $"{identityServer}",
                 ApiName = "doc-stack-app-api",
+                RequireHttpsMetadata = false,
+            };
+            var options2 = IdentityServer4.AccessTokenValidation.CombinedAuthenticationOptions.FromIdentityServerAuthenticationOptions(options);
+            options2.JwtBearerOptions.TokenValidationParameters.ValidIssuers = new List<string>() {identityServer, "http://doc-identity"};
 
-                RequireHttpsMetadata = false
-            });
+            app.UseIdentityServerAuthentication(options2);
 
 
             app.UseMvc();
