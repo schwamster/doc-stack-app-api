@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using doc_stack_app_api.Store;
 using Microsoft.Extensions.PlatformAbstractions;
 using Swashbuckle.AspNetCore.Swagger;
+using HealthCheck;
 
 namespace doc_stack_app_api
 {
@@ -117,6 +118,7 @@ namespace doc_stack_app_api
 
             app.UseIdentityServerAuthentication(options2);
 
+            app.UseHealthcheckEndpoint(new HealthCheckOptions() { Message = "Its alive"});
 
             app.UseMvc();
 

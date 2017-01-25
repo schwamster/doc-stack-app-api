@@ -20,7 +20,8 @@
     "Microsoft.Extensions.Logging.Debug": "1.1.0",
     "Microsoft.Extensions.Options.ConfigurationExtensions": "1.1.0",
     "Newtonsoft.Json": "9.0.2-beta1",
-    "StackExchange.Redis": "1.2.0"
+    "StackExchange.Redis": "1.2.0",
+    "health-check-middleware": "1.1.0"
   },
 
   "tools": {
