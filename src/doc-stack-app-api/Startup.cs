@@ -14,6 +14,7 @@ using CorrelationId;
 using SerilogEnricher;
 using CustomSerilogFormatter;
 using HealthCheck;
+using PerformanceLog;
 
 namespace doc_stack_app_api
 {
