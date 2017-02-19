@@ -13,6 +13,7 @@ using Swashbuckle.AspNetCore.Swagger;
 using CorrelationId;
 using SerilogEnricher;
 using CustomSerilogFormatter;
+using HealthCheck;
 
 namespace doc_stack_app_api
 {
@@ -125,6 +126,7 @@ namespace doc_stack_app_api
             app.UseIdentityServerAuthentication(options2);
 
             app.UsePerformanceLog(new PerformanceLogOptions());
+            app.UseHealthcheckEndpoint(new HealthCheckOptions() { Message = "Its alive"});
 
             app.UseMvc();
 
