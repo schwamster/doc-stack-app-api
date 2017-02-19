@@ -20,7 +20,11 @@
     "Microsoft.Extensions.Logging.Debug": "1.1.0",
     "Microsoft.Extensions.Options.ConfigurationExtensions": "1.1.0",
     "Newtonsoft.Json": "9.0.2-beta1",
-    "StackExchange.Redis": "1.2.0"
+    "StackExchange.Redis": "1.2.0",
+    "correlation-id-middleware": "1.1.1",
+    "serilog-enricher-middleware": "1.2.1",
+    "performance-log-middleware": "1.1.0-beta-13",
+    "custom-serilog-formatter": "1.2.0"
   },
 
   "tools": {

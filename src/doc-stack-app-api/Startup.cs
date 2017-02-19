@@ -10,6 +10,9 @@ using Microsoft.Extensions.Logging;
 using doc_stack_app_api.Store;
 using Microsoft.Extensions.PlatformAbstractions;
 using Swashbuckle.AspNetCore.Swagger;
+using CorrelationId;
+using SerilogEnricher;
+using CustomSerilogFormatter;
 
 namespace doc_stack_app_api
 {
@@ -24,6 +27,8 @@ namespace doc_stack_app_api
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
+
+            CustomSerilogConfigurator.Setup("doc-stack-app-api", false);
         }
 
         public static ILoggerFactory LoggerFactory { get; set; }
@@ -103,6 +108,8 @@ namespace doc_stack_app_api
             var identityServer = Configuration["IdentityServerUrl"];
             var alternativeIdentityServer = Configuration["AlternativeIdentityServer"];
 
+            app.UseCorrelationIdMiddleware(new CorrelationIdMiddlewareOptions());
+            app.UseSerilogEnricherMiddleware();
             app.UseCors("default");
 
             var x = new Microsoft.IdentityModel.Tokens.TokenValidationParameters();
@@ -117,6 +124,7 @@ namespace doc_stack_app_api
 
             app.UseIdentityServerAuthentication(options2);
 
+            app.UsePerformanceLog(new PerformanceLogOptions());
 
             app.UseMvc();
 
