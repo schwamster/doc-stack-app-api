@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
+using IdentityServer4;
 
 public class SecurityRequirementsOperationFilter : IOperationFilter
 {
@@ -20,6 +21,8 @@ public class SecurityRequirementsOperationFilter : IOperationFilter
 
         var requiredScopes = controllerScopes.Union(actionScopes).Distinct().ToList();
         requiredScopes.Add("doc-stack-app-api");
+        requiredScopes.Add(IdentityServerConstants.StandardScopes.Profile);
+        requiredScopes.Add(IdentityServerConstants.StandardScopes.OpenId);
 
         if (requiredScopes.Any())
         {

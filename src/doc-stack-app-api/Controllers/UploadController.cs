@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -67,7 +68,8 @@ namespace docstackapp.Controllers
                     this.logger.LogInformation("Adding document to store...");
 
                     //adding doc to store
-                    await AddToStore(user, client, documentId, stringRepresentationOfFile, f.FileName, this.config["StoreHostName"]);
+                    var accessToken = await HttpContext.Authentication.GetTokenAsync("access_token");
+                    await AddToStore(user, client, documentId, stringRepresentationOfFile, f.FileName, this.config["StoreHostName"], accessToken);
 
                     //adding doc to queue for further processing
                     this.logger.LogInformation("Adding document to queue...");
@@ -79,7 +81,7 @@ namespace docstackapp.Controllers
             return result;
         }
 
-        internal async Task<bool> AddToStore(string user, string clientName, Guid documentId, string stringRepresentationOfFile, string fileName, string uploadHost)
+        internal async Task<bool> AddToStore(string user, string clientName, Guid documentId, string stringRepresentationOfFile, string fileName, string uploadHost, string token)
         {
             var document = new
             {
@@ -93,6 +95,7 @@ namespace docstackapp.Controllers
             var content = new StringContent(JsonConvert.SerializeObject(document), Encoding.UTF8, "application/json");
             using (var client = new HttpClient())
             {
+                client.SetBearerToken(token);
                 using (var message = await client.PostAsync($"http://{uploadHost}/api/Document", content))
                 {
                     var input = await message.Content.ReadAsStringAsync();

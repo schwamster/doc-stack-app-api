@@ -15,6 +15,7 @@ using SerilogEnricher;
 using CustomSerilogFormatter;
 using HealthCheck;
 using PerformanceLog;
+using IdentityServer4;
 
 namespace doc_stack_app_api
 {
@@ -60,7 +61,7 @@ namespace doc_stack_app_api
             services.AddLogging();
             services.AddSingleton<IConfiguration>(Configuration);
             services.AddSingleton<IQueueService, RedisQueueService>();
-            
+
             services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new Info
@@ -76,10 +77,11 @@ namespace doc_stack_app_api
                 {
                     Type = "oauth2",
                     Flow = "implicit",
-                    AuthorizationUrl = $"{identityServer}/connect/authorize",
+                    AuthorizationUrl = $"{identityServer}/connect/authorize",                
                     Scopes = new Dictionary<string, string>
                     {
-                        { "doc-stack-app-api", "doc-stack-app-api" }
+                        { "doc-stack-app-api", "doc-stack-app-api" },
+                        { "doc-store", "doc-store" }
                     }
                 });
 
@@ -92,7 +94,7 @@ namespace doc_stack_app_api
                 //Set the comments path for the swagger json and ui.
                 options.IncludeXmlComments(GetXmlCommentsPath());
             });
-            
+
         }
 
         private string GetXmlCommentsPath()
@@ -115,19 +117,23 @@ namespace doc_stack_app_api
             app.UseCors("default");
 
             var x = new Microsoft.IdentityModel.Tokens.TokenValidationParameters();
+            
             var options = new IdentityServerAuthenticationOptions
             {
                 Authority = $"{identityServer}",
-                ApiName = "doc-stack-app-api",
+                ApiName = "doc-stack-app-api",                 
                 RequireHttpsMetadata = false,
+                SaveToken = true,
+                
             };
             var options2 = IdentityServer4.AccessTokenValidation.CombinedAuthenticationOptions.FromIdentityServerAuthenticationOptions(options);
-            options2.JwtBearerOptions.TokenValidationParameters.ValidIssuers = new List<string>() {identityServer, alternativeIdentityServer};
+            
+            options2.JwtBearerOptions.TokenValidationParameters.ValidIssuers = new List<string>() { identityServer, alternativeIdentityServer };
 
             app.UseIdentityServerAuthentication(options2);
 
             app.UsePerformanceLog(new PerformanceLogOptions());
-            app.UseHealthcheckEndpoint(new HealthCheckOptions() { Message = "Its alive"});
+            app.UseHealthcheckEndpoint(new HealthCheckOptions() { Message = "Its alive" });
 
             app.UseMvc();
 

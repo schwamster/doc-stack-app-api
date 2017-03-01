@@ -25,7 +25,8 @@
     "serilog-enricher-middleware": "1.2.1",
     "performance-log-middleware": "1.1.0-beta-13",
     "custom-serilog-formatter": "1.2.0",
-    "health-check-middleware": "1.1.0"
+    "health-check-middleware": "1.1.0",
+    "IdentityServer4": "1.2.0"
   },
 
   "tools": {
