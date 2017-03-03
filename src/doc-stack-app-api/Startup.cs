@@ -16,6 +16,11 @@ using CustomSerilogFormatter;
 using HealthCheck;
 using PerformanceLog;
 using IdentityServer4;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authentication;
+using IdentityModel.Client;
 
 namespace doc_stack_app_api
 {
@@ -125,6 +130,27 @@ namespace doc_stack_app_api
                 RequireHttpsMetadata = false,
                 SaveToken = true,
                 
+                JwtBearerEvents = new JwtBearerEvents()
+                {
+                    OnTokenValidated = async (context) =>
+                    {
+                        var principal = (ClaimsPrincipal)context.Ticket.Principal;
+                        var identity = (ClaimsIdentity)principal.Identity;
+
+                        var accessToken = ((JwtSecurityToken)context.SecurityToken).RawData;
+                        identity.AddClaim(new Claim("token", accessToken));
+
+                        var discoveryClient = new DiscoveryClient(context.Options.Authority, null);
+                        var doc = await discoveryClient.GetAsync();
+
+                        var userInfoClient = new UserInfoClient(doc.UserInfoEndpoint);
+
+                        var response = await userInfoClient.GetAsync(accessToken);
+                        identity.AddClaims(response.Claims);
+
+                        context.Ticket = new AuthenticationTicket(principal, context.Ticket.Properties, context.Ticket.AuthenticationScheme);
+                    }
+                }
             };
             var options2 = IdentityServer4.AccessTokenValidation.CombinedAuthenticationOptions.FromIdentityServerAuthenticationOptions(options);
             
