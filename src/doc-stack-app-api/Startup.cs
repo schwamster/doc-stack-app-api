@@ -82,11 +82,17 @@ namespace doc_stack_app_api
                 {
                     Type = "oauth2",
                     Flow = "implicit",
-                    AuthorizationUrl = $"{identityServer}/connect/authorize",                
+                    AuthorizationUrl = $"{identityServer}/connect/authorize",
+                                
                     Scopes = new Dictionary<string, string>
                     {
                         { "doc-stack-app-api", "doc-stack-app-api" },
-                        { "doc-store", "doc-store" }
+                        { "doc-store", "doc-store" },
+
+                        //this does not work - since we only ask for response type token...
+                        //{ "tenant", "tenant info" },
+                        //{ "openid", "openid" },
+                        //{ "profile", "profile" }
                     }
                 });
 
@@ -146,7 +152,10 @@ namespace doc_stack_app_api
                         var userInfoClient = new UserInfoClient(doc.UserInfoEndpoint);
 
                         var response = await userInfoClient.GetAsync(accessToken);
-                        identity.AddClaims(response.Claims);
+                        if (response.Claims != null)
+                        {
+                            identity.AddClaims(response.Claims);
+                        }
 
                         context.Ticket = new AuthenticationTicket(principal, context.Ticket.Properties, context.Ticket.AuthenticationScheme);
                     }
