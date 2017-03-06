@@ -21,6 +21,7 @@ using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication;
 using IdentityModel.Client;
+using Newtonsoft.Json;
 
 namespace doc_stack_app_api
 {
@@ -83,7 +84,7 @@ namespace doc_stack_app_api
                     Type = "oauth2",
                     Flow = "implicit",
                     AuthorizationUrl = $"{identityServer}/connect/authorize",
-                                
+
                     Scopes = new Dictionary<string, string>
                     {
                         { "doc-stack-app-api", "doc-stack-app-api" },
@@ -128,14 +129,14 @@ namespace doc_stack_app_api
             app.UseCors("default");
 
             var x = new Microsoft.IdentityModel.Tokens.TokenValidationParameters();
-            
+
             var options = new IdentityServerAuthenticationOptions
             {
                 Authority = $"{identityServer}",
-                ApiName = "doc-stack-app-api",                 
+                ApiName = "doc-stack-app-api",
                 RequireHttpsMetadata = false,
                 SaveToken = true,
-                
+
                 JwtBearerEvents = new JwtBearerEvents()
                 {
                     OnTokenValidated = async (context) =>
@@ -145,16 +146,31 @@ namespace doc_stack_app_api
 
                         var accessToken = ((JwtSecurityToken)context.SecurityToken).RawData;
                         identity.AddClaim(new Claim("token", accessToken));
-
-                        var discoveryClient = new DiscoveryClient(context.Options.Authority, null);
-                        var doc = await discoveryClient.GetAsync();
-
-                        var userInfoClient = new UserInfoClient(doc.UserInfoEndpoint);
-
-                        var response = await userInfoClient.GetAsync(accessToken);
-                        if (response.Claims != null)
+                        try
                         {
-                            identity.AddClaims(response.Claims);
+
+                            Console.WriteLine($"MÖÖÖÖÖÖÖÖÖÖÖÖÖÖP: {context.Options.Authority}");
+                            var discoveryClient = new DiscoveryClient("http://localhost", null);//context.Options.Authority, null);
+                            var doc = await discoveryClient.GetAsync();
+
+                            var json = Newtonsoft.Json.JsonConvert.SerializeObject(doc, Formatting.Indented);
+                            Console.WriteLine(json);
+                            
+                            Console.WriteLine($"MÖÖÖÖÖÖÖÖÖÖÖÖÖÖP: {doc.UserInfoEndpoint}");
+                            var userInfoClient = new UserInfoClient("http://localhost/connect/userinfo");//doc.UserInfoEndpoint);
+
+                            var response = await userInfoClient.GetAsync(accessToken);
+
+                            json = Newtonsoft.Json.JsonConvert.SerializeObject(response, Formatting.Indented);
+                            Console.WriteLine(json);
+                            if (response.Claims != null)
+                            {
+                                identity.AddClaims(response.Claims);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Claims could not be retrieved: {ex}");
                         }
 
                         context.Ticket = new AuthenticationTicket(principal, context.Ticket.Properties, context.Ticket.AuthenticationScheme);
@@ -162,7 +178,7 @@ namespace doc_stack_app_api
                 }
             };
             var options2 = IdentityServer4.AccessTokenValidation.CombinedAuthenticationOptions.FromIdentityServerAuthenticationOptions(options);
-            
+
             options2.JwtBearerOptions.TokenValidationParameters.ValidIssuers = new List<string>() { identityServer, alternativeIdentityServer };
 
             app.UseIdentityServerAuthentication(options2);
@@ -183,5 +199,12 @@ namespace doc_stack_app_api
                 c.ConfigureOAuth2("doc-stack-app-api-swagger", null, "swagger-ui-realm", "Swagger UI");
             });
         }
+
+        public static string GetIp(string hostname)
+                        => System.Net.Dns.GetHostEntryAsync(hostname)
+                            .Result
+                            .AddressList
+                            .First(a => a.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                            .ToString();
     }
 }

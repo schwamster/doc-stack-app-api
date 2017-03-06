@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <assemblies>
-  <assembly name="doc-stack-app-api.tests.dll" environment="64-bit .NET (unknown version) [collection-per-class, parallel (2 threads)]" test-framework="xUnit.net 2.2.0.3474" run-date="2017-01-17" run-time="18:30:10" total="1" passed="1" failed="0" skipped="0" time="0.133" errors="0">
+  <assembly name="doc-stack-app-api.tests.dll" environment="64-bit .NET (unknown version) [collection-per-class, parallel (2 threads)]" test-framework="xUnit.net 2.2.0.3474" run-date="2017-03-06" run-time="20:50:14" total="1" passed="1" failed="0" skipped="0" time="1.159" errors="0">
     <errors />
-    <collection total="1" passed="1" failed="0" skipped="0" name="Test collection for Tests.RedisQueueServiceTest" time="0.012">
-      <test name="Tests.RedisQueueServiceTest.RedisQueueService_GivenLocalhost_ReturnsExpectedIp" type="Tests.RedisQueueServiceTest" method="RedisQueueService_GivenLocalhost_ReturnsExpectedIp" time="0.0121273" result="Pass" />
+    <collection total="1" passed="1" failed="0" skipped="0" name="Test collection for Tests.RedisQueueServiceTest" time="0.060">
+      <test name="Tests.RedisQueueServiceTest.RedisQueueService_GivenLocalhost_ReturnsExpectedIp" type="Tests.RedisQueueServiceTest" method="RedisQueueService_GivenLocalhost_ReturnsExpectedIp" time="0.0604172" result="Pass" />
     </collection>
   </assembly>
 </assemblies>
