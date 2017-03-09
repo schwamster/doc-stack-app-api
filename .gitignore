@@ -1,3 +1,4 @@
+*.trx
 /publish/web
 /src/doc-stack-app-api/bin/Debug/netcoreapp1.0
 /src/doc-stack-app-api/obj/Debug/netcoreapp1.0
