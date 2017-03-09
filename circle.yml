@@ -12,7 +12,7 @@ dependencies:
 test:
   override:
     - mkdir -p $CIRCLE_TEST_REPORTS/junit
-    - mv testresults/*.trx $CIRCLE_TEST_REPORTS/junit
+    - cp -a testresults/. $CIRCLE_TEST_REPORTS/junit
     
 deployment:
   hub:
