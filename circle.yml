@@ -6,7 +6,7 @@ dependencies:
   override:
     - echo "$CIRCLE_TAG"
     - docker info
-    - docker-compose -f docker-compose-build-circle.yml up
+    - docker-compose -f docker-compose-build.yml up
     - docker build -t schwamster/doc-stack-app-api ./publish/web/
 
 test:

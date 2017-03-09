@@ -16,3 +16,4 @@
 /src/doc-stack-app-api/bin/release/netcoreapp1.1
 /src/doc-stack-app-api/obj/release/netcoreapp1.1
 /testresults/out.xml
+/UpgradeLog.htm
