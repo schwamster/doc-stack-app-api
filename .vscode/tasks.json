@@ -7,7 +7,7 @@
         {
             "taskName": "build",
             "args": [
-                "${workspaceRoot}\\src\\doc-stack-app-api\\project.json"
+                "${workspaceRoot}\\src\\doc-stack-app-api\\doc-stack-app-api.csproj"
             ],
             "isBuildCommand": true,
             "problemMatcher": "$msCompile"
