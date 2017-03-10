@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
+using System.Linq;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -68,8 +69,9 @@ namespace docstackapp.Controllers
                     this.logger.LogInformation("Adding document to store...");
 
                     //adding doc to store
-                    var accessToken = await HttpContext.Authentication.GetTokenAsync("access_token");
-                    await AddToStore(user, client, documentId, stringRepresentationOfFile, f.FileName, this.config["StoreHostName"], accessToken);
+                    var token = await this.HttpContext.Authentication.GetTokenAsync("access_token");
+                    this.logger.LogError($"at: {token}");
+                    await AddToStore(user, client, documentId, stringRepresentationOfFile, f.FileName, this.config["StoreHostName"], token);
 
                     //adding doc to queue for further processing
                     this.logger.LogInformation("Adding document to queue...");
