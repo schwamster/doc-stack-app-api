@@ -48,7 +48,7 @@ namespace doc_stack_app_api
         public void ConfigureServices(IServiceCollection services)
         {
             var dockStackAppUrl = Configuration["DocStackApp"];
-            var identityServer = Configuration["AlternativeIdentityServer"];
+            var identityServer = Configuration["IdentityServerUrl"];
 
             services.AddCors(options =>
             {
@@ -122,66 +122,71 @@ namespace doc_stack_app_api
             loggerFactory.AddDebug();
 
             var identityServer = Configuration["IdentityServerUrl"];
-            var alternativeIdentityServer = Configuration["AlternativeIdentityServer"];
 
             app.UseCorrelationIdMiddleware(new CorrelationIdMiddlewareOptions());
             app.UseSerilogEnricherMiddleware();
             app.UseCors("default");
 
-            var x = new Microsoft.IdentityModel.Tokens.TokenValidationParameters();
-
-            var options = new IdentityServerAuthenticationOptions
+            app.UseIdentityServerAuthentication(new IdentityServerAuthenticationOptions
             {
-                Authority = $"{identityServer}",
-                ApiName = "doc-stack-app-api",
+                Authority = identityServer,
                 RequireHttpsMetadata = false,
-                SaveToken = true,
 
-                JwtBearerEvents = new JwtBearerEvents()
-                {
-                    OnTokenValidated = async (context) =>
-                    {
-                        var principal = (ClaimsPrincipal)context.Ticket.Principal;
-                        var identity = (ClaimsIdentity)principal.Identity;
+                ApiName = "doc-stack-app-api"
+            });
 
-                        var accessToken = ((JwtSecurityToken)context.SecurityToken).RawData;
-                        identity.AddClaim(new Claim("token", accessToken));
-                        try
-                        {
+            //var options = new IdentityServerAuthenticationOptions
+            //{
+            //    Authority = $"{identityServer}",
+            //    ApiName = "doc-stack-app-api",
+            //    RequireHttpsMetadata = false,
+            //    SaveToken = true,
 
-                            Console.WriteLine($"MÖÖÖÖÖÖÖÖÖÖÖÖÖÖP: {context.Options.Authority}");
-                            var discoveryClient = new DiscoveryClient("http://localhost", null);//context.Options.Authority, null);
-                            var doc = await discoveryClient.GetAsync();
+            //    JwtBearerEvents = new JwtBearerEvents()
+            //    {
+            //        OnTokenValidated = async (context) =>
+            //        {
+            //            var principal = (ClaimsPrincipal)context.Ticket.Principal;
+            //            var identity = (ClaimsIdentity)principal.Identity;
 
-                            var json = Newtonsoft.Json.JsonConvert.SerializeObject(doc, Formatting.Indented);
-                            Console.WriteLine(json);
+            //            var accessToken = ((JwtSecurityToken)context.SecurityToken).RawData;
+            //            identity.AddClaim(new Claim("token", accessToken));
+            //            try
+            //            {
+
+            //                Console.WriteLine($"MÖÖÖÖÖÖÖÖÖÖÖÖÖÖP: {context.Options.Authority}");
+            //                var discoveryClient = new DiscoveryClient(context.Options.Authority, null);
+            //                var doc = await discoveryClient.GetAsync();
+
+            //                var json = Newtonsoft.Json.JsonConvert.SerializeObject(doc, Formatting.Indented);
+            //                Console.WriteLine(json);
                             
-                            Console.WriteLine($"MÖÖÖÖÖÖÖÖÖÖÖÖÖÖP: {doc.UserInfoEndpoint}");
-                            var userInfoClient = new UserInfoClient("http://localhost/connect/userinfo");//doc.UserInfoEndpoint);
+            //                Console.WriteLine($"MÖÖÖÖÖÖÖÖÖÖÖÖÖÖP: {doc.UserInfoEndpoint}");
+            //                var userInfoClient = new UserInfoClient(doc.UserInfoEndpoint);
 
-                            var response = await userInfoClient.GetAsync(accessToken);
+            //                var response = await userInfoClient.GetAsync(accessToken);
 
-                            json = Newtonsoft.Json.JsonConvert.SerializeObject(response, Formatting.Indented);
-                            Console.WriteLine(json);
-                            if (response.Claims != null)
-                            {
-                                identity.AddClaims(response.Claims);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Claims could not be retrieved: {ex}");
-                        }
+            //                json = Newtonsoft.Json.JsonConvert.SerializeObject(response, Formatting.Indented);
+            //                Console.WriteLine(json);
+            //                if (response.Claims != null)
+            //                {
+            //                    identity.AddClaims(response.Claims);
+            //                }
+            //            }
+            //            catch (Exception ex)
+            //            {
+            //                Console.WriteLine($"Claims could not be retrieved: {ex}");
+            //            }
 
-                        context.Ticket = new AuthenticationTicket(principal, context.Ticket.Properties, context.Ticket.AuthenticationScheme);
-                    }
-                }
-            };
-            var options2 = IdentityServer4.AccessTokenValidation.CombinedAuthenticationOptions.FromIdentityServerAuthenticationOptions(options);
+            //            context.Ticket = new AuthenticationTicket(principal, context.Ticket.Properties, context.Ticket.AuthenticationScheme);
+            //        }
+            //    }
+            //};
+            //var options2 = IdentityServer4.AccessTokenValidation.CombinedAuthenticationOptions.FromIdentityServerAuthenticationOptions(options);
 
-            options2.JwtBearerOptions.TokenValidationParameters.ValidIssuers = new List<string>() { identityServer, alternativeIdentityServer };
+            //options2.JwtBearerOptions.TokenValidationParameters.ValidIssuers = new List<string>() { identityServer };
 
-            app.UseIdentityServerAuthentication(options2);
+            //app.UseIdentityServerAuthentication(options2);
 
             app.UsePerformanceLog(new PerformanceLogOptions());
             app.UseHealthcheckEndpoint(new HealthCheckOptions() { Message = "Its alive" });
