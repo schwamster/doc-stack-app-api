@@ -48,7 +48,7 @@ namespace doc_stack_app_api
         public void ConfigureServices(IServiceCollection services)
         {
             var dockStackAppUrl = Configuration["DocStackApp"];
-            var identityServer = Configuration["AlternativeIdentityServer"];
+            var identityServer = Configuration["IdentityServerUrl"];
 
             services.AddCors(options =>
             {
@@ -122,7 +122,6 @@ namespace doc_stack_app_api
             loggerFactory.AddDebug();
 
             var identityServer = Configuration["IdentityServerUrl"];
-            var alternativeIdentityServer = Configuration["AlternativeIdentityServer"];
 
             app.UseCorrelationIdMiddleware(new CorrelationIdMiddlewareOptions());
             app.UseSerilogEnricherMiddleware();
@@ -148,16 +147,11 @@ namespace doc_stack_app_api
                         identity.AddClaim(new Claim("token", accessToken));
                         try
                         {
-
-                            Console.WriteLine($"MÖÖÖÖÖÖÖÖÖÖÖÖÖÖP: {context.Options.Authority}");
-                            var discoveryClient = new DiscoveryClient("http://localhost", null);//context.Options.Authority, null);
+                            var discoveryClient = new DiscoveryClient(context.Options.Authority, null);
                             var doc = await discoveryClient.GetAsync();
 
                             var json = Newtonsoft.Json.JsonConvert.SerializeObject(doc, Formatting.Indented);
-                            Console.WriteLine(json);
-                            
-                            Console.WriteLine($"MÖÖÖÖÖÖÖÖÖÖÖÖÖÖP: {doc.UserInfoEndpoint}");
-                            var userInfoClient = new UserInfoClient("http://localhost/connect/userinfo");//doc.UserInfoEndpoint);
+                            var userInfoClient = new UserInfoClient(doc.UserInfoEndpoint);
 
                             var response = await userInfoClient.GetAsync(accessToken);
 
@@ -179,7 +173,7 @@ namespace doc_stack_app_api
             };
             var options2 = IdentityServer4.AccessTokenValidation.CombinedAuthenticationOptions.FromIdentityServerAuthenticationOptions(options);
 
-            options2.JwtBearerOptions.TokenValidationParameters.ValidIssuers = new List<string>() { identityServer, alternativeIdentityServer };
+            options2.JwtBearerOptions.TokenValidationParameters.ValidIssuers = new List<string>() { identityServer };
 
             app.UseIdentityServerAuthentication(options2);
 
